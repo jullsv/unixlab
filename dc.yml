@@ -1,0 +1,31 @@
+services:
+  redis:
+    image: redis:latest
+    hostname: redis
+    deploy:
+      replicas: 1 
+      resources:
+        limits:
+          memory: 128M
+
+  frontend:
+    build: . 
+    depends_on:
+      - redis
+    deploy:
+      replicas: 3 
+      resources:
+        limits:
+          memory: 64M
+    command: ["./app", "producer", "http://c-lang-test.com/task-from-producer"]
+    
+  worker:
+    build: .
+    depends_on:
+      - redis
+    deploy:
+      replicas: 2 
+      resources:
+        limits:
+          memory: 64M
+    command: ["./app", "consumer"]
